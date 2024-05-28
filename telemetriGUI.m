@@ -13,17 +13,25 @@ function telemetriGUI
 
     % Function to be executed when the 'Select File' button is pressed
     function fileButtonPushed()
+        % Open a file selection dialog
         [fileName, pathName] = uigetfile({'*.csv', 'CSV Files (*.csv)'}, 'Select Telemetry File');
         if fileName == 0
+            % Display an error message if no file is selected
             uialert(fig, 'No file selected.', 'File Selection Error');
             return;
         end
+        % Construct the full file path
         filePath = fullfile(pathName, fileName);
+        % Process the selected telemetry file
         telemetryData = processTelemetryFile(filePath);
+        % Get the variable names from the telemetry data
         variableNames = fieldnames(telemetryData);
         disp(telemetryData);
-        RESULTS = mainFunction();  % This loads the RESULTS structure
+        % Run the mainFunction.m to calculate the desired results and retrieve them
+        RESULTS = mainFunction();  % Load the RESULTS structure
+        % Get the field names from the RESULTS structure
         resultsFields = fieldnames(RESULTS);
+        % Update the variable listbox with the variable names
         variableList.Items = [resultsFields; variableNames];
     end
 
@@ -34,10 +42,12 @@ function telemetriGUI
 
     % Function to process the selected telemetry file
     function data = processTelemetryFile(filePath)
+        % Read the CSV file into a table
         dataTable = readtable(filePath);
         disp('Data Table:');
         disp(dataTable);  % Display the structure and content of the table
         
+        % Convert the table to a structure
         data = table2struct(dataTable);
         disp('Data Struct:');
         disp(data);  % Display the converted structure
@@ -45,40 +55,63 @@ function telemetriGUI
 
     % Function to update the plots with the selected variables
     function updatePlots(selectedVariables)
+        % Delete existing axes
         delete(findobj(axesPanel, 'type', 'axes'));
+        % Get the number of selected variables
         numVariables = length(selectedVariables);
-        axesHeight = 0.8 / numVariables; % Height of each axis
+        % Get the height and width of the axes panel
+        panelHeight = axesPanel.Position(4);
+        panelWidth = axesPanel.Position(3);
+        % Define the margin size
+        margin = 60; % margin size
+        % Calculate the height and width of each axis
+        axesHeight = (panelHeight - margin * (numVariables + 1)) / numVariables; % Height of each axis
+        axesWidth = panelWidth - 2.2 * margin; % Width of each axis
+        
         for i = 1:numVariables
             % Set the position of each axis
-            plotAxes = axes('Parent', axesPanel, 'Position', [0.1, 1 - i*axesHeight - 0.1, 0.8, axesHeight - 0.05]);
+            plotAxes = axes('Parent', axesPanel, 'Position', [margin / panelWidth, 1 - (i * (axesHeight + margin) / panelHeight), axesWidth / panelWidth, axesHeight / panelHeight]);
             selectedVariable = selectedVariables{i};
             if isfield(telemetryData, selectedVariable)
+                % Get the data for the selected variable
                 plotData = [telemetryData.(selectedVariable)];
                 if isfield(telemetryData, 'time_sn')
+                    % Get the time data
                     timeData = [telemetryData.time_sn];
 
+                    % Check the validity of the time and data arrays
                     if isempty(timeData) || isempty(plotData) || length(timeData) ~= length(plotData)
                         disp('Invalid data: Time and data arrays are empty or lengths do not match.');
                         return;
                     end
+                    % Plot the data
                     plot(plotAxes, timeData, plotData);
+                    grid(plotAxes, 'on'); % Add grid
+                    % Set the title and axis labels
                     title(plotAxes, selectedVariable, 'Interpreter', 'none');  % Set the variable name as title
                     xlabel(plotAxes, 'Time (s)', 'Interpreter', 'none');
-                    ylabel(plotAxes, 'Data', 'Interpreter', 'none');
+                    ylabel(plotAxes, selectedVariable, 'Interpreter', 'none', 'FontSize', 10, 'FontWeight', 'bold'); % Set the font size and weight
+                    % Calculate and set the x-axis limits
                     xlimRange = [min(timeData), max(timeData)];
+                    % Calculate and set the y-axis limits
                     ylimRange = [min(plotData), max(plotData)];
-                    
+
+                    % Set the axis limits
                     xlim(plotAxes, xlimRange);
                     ylim(plotAxes, ylimRange);
                 else
                     disp('Time data not found.');
                 end
             elseif isfield(RESULTS, selectedVariable)
+                % Get the data from the RESULTS structure
                 tsObj = RESULTS.(selectedVariable);
+                % Plot the data
                 plot(plotAxes, tsObj.Time, tsObj.Data);
+                grid(plotAxes, 'on'); % Add grid
+                % Set the title and axis labels
                 title(plotAxes, selectedVariable, 'Interpreter', 'none');  % Set the variable name as title
                 xlabel(plotAxes, 'Time (s)', 'Interpreter', 'none');
-                ylabel(plotAxes, 'Data', 'Interpreter', 'none');
+                ylabel(plotAxes, 'Data', 'Interpreter', 'none', 'FontSize', 10, 'FontWeight', 'bold'); % Set the font size and weight
             else
                 disp(['Selected variable not found: ', selectedVariable]);
             end
