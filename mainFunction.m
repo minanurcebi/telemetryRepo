@@ -19,4 +19,8 @@ function RESULTS = mainFunction()
     
     % Convert latitude, longitude, and altitude to NED coordinates
     run('lla2nedCoords.m')
+    
+    % Calculate airspeed components (u, v, w)
+    run('calculateAirSpeedComponents.m')
+
 end
