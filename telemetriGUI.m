@@ -1,6 +1,4 @@
 function telemetriGUI
-    % Main function for the MATLAB GUI
-
 %% Create and position the GUI components
     fig = uifigure('Name', 'Telemetry Data Analysis', 'Position', [100, 100, 800, 600]);
         % Create the 'Select File' button
@@ -32,7 +30,6 @@ function telemetriGUI
         telemetryData = processTelemetryFile(filePath);
         % Get the variable names from the telemetry data
         variableNames = fieldnames(telemetryData);
-%         disp(telemetryData);
         % Runs the 'mainFunction.m' that calculates the desired results and retrieves them
         RESULTS = mainFunction();  % Load the RESULTS structure
         % Get the field names from the RESULTS structure
@@ -55,13 +52,9 @@ function telemetriGUI
     function data = processTelemetryFile(filePath)
         % Read the CSV file into a table
         dataTable = readtable(filePath);
-%         disp('Data Table:');
-%         disp(dataTable);  % Display the structure and content of the table
         
         % Convert the table to a structure
         data = table2struct(dataTable);
-%         disp('Data Struct:');
-%         disp(data);  % Display the converted structure
     end
 
 %% Function to update the plots with the selected variables
@@ -114,6 +107,15 @@ function telemetriGUI
                     ylimMax = max(plotData);
                     ylimPadding = (ylimMax - ylimMin) * 0.1; % 10% padding
                     ylimRange = [ylimMin - ylimPadding, ylimMax + ylimPadding];
+                    
+                    % Check if the y-axis limits are valid, if not set default limits
+                    if ylimRange(1) == ylimRange(2)
+                        ylimRange = [ylimRange(1) - 1, ylimRange(2) + 1];
+                    end
+                    if any(isnan(ylimRange)) || any(isinf(ylimRange))
+                        ylimRange = [0, 1]; % Set default y-axis limits if invalid
+                    end
+
                     % Set the axis limits
                     xlim(plotAxes, xlimRange);
                     ylim(plotAxes, ylimRange);
@@ -136,6 +138,15 @@ function telemetriGUI
                 ylimMax = max(tsObj.Data);
                 ylimPadding = (ylimMax - ylimMin) * 0.1; % 10% padding
                 ylimRange = [ylimMin - ylimPadding, ylimMax + ylimPadding];
+
+                % Check if the y-axis limits are valid, if not set default limits
+                if ylimRange(1) == ylimRange(2)
+                    ylimRange = [ylimRange(1) - 1, ylimRange(2) + 1];
+                end
+                if any(isnan(ylimRange)) || any(isinf(ylimRange))
+                    ylimRange = [0, 1]; % Set default y-axis limits if invalid
+                end
+
                 % Set the y-axis limits
                 ylim(plotAxes, ylimRange);
             else
