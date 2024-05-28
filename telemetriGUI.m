@@ -29,10 +29,33 @@ function telemetriGUI
     function plotButtonPushed()
         updatePlots(variableList.Value);
     end
+
     % Function to process the selected telemetry file
     function data = processTelemetryFile(filePath)
         dataTable = readtable(filePath);
         data = table2struct(dataTable);
     end
 
+    % Function to update the plots with the selected variable
+    function updatePlots(selectedVariable)
+        delete(findobj(axesPanel, 'type', 'axes'));
+        plotAxes = axes(axesPanel);
+        if isfield(telemetryData, selectedVariable)
+            plotData = telemetryData.(selectedVariable);
+            if isfield(telemetryData, 'time_sn')
+                timeData = telemetryData.time_sn;
+
+                % Plot the data
+                plot(plotAxes, timeData, plotData);
+                xlabel(plotAxes, 'Time (s)');
+                ylabel(plotAxes, selectedVariable);
+                xlim(plotAxes, [min(timeData) max(timeData)]);
+                ylim(plotAxes, [min(plotData) max(plotData)]);
+            else
+                disp('Time data not found.');
+            end
+        else
+            disp(['Selected variable not found: ', selectedVariable]);
+        end
+    end
 end
