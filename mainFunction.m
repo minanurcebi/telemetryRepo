@@ -13,4 +13,7 @@ function RESULTS = mainFunction()
     
     % Calculate aerodynamic coefficients (CL, CD, CM)
     run('aerodynamicCoefficients.m')
+    
+    % Convert quaternions to Euler angles (yaw, pitch, roll)
+    run('quaternions2euler.m')
 end
