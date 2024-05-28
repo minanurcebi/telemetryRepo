@@ -4,7 +4,7 @@ function telemetriGUI
     % Creating and positioning the GUI components
     fig = uifigure('Name', 'Telemetry Data Analysis', 'Position', [100, 100, 800, 600]);
     fileButton = uibutton(fig, 'push', 'Text', 'Select File', 'Position', [20, 550, 100, 30], 'ButtonPushedFcn', @(src, event) fileButtonPushed());
-    variableList = uilistbox(fig, 'Position', [20, 400, 200, 130]);
+    variableList = uilistbox(fig, 'Position', [20, 400, 200, 130], 'Multiselect', 'on');
     axesPanel = uipanel(fig, 'Position', [240, 20, 540, 560]);
     plotButton = uibutton(fig, 'push', 'Text', 'Plot Graph', 'Position', [130, 550, 100, 30], 'ButtonPushedFcn', @(src, event) plotButtonPushed());
 
@@ -43,37 +43,44 @@ function telemetriGUI
         disp(data);  % Display the converted structure
     end
 
-    % Function to update the plots with the selected variable
-    function updatePlots(selectedVariable)
+    % Function to update the plots with the selected variables
+    function updatePlots(selectedVariables)
         delete(findobj(axesPanel, 'type', 'axes'));
-        plotAxes = axes(axesPanel);
-        if isfield(telemetryData, selectedVariable)
-            plotData = [telemetryData.(selectedVariable)];
-            if isfield(telemetryData, 'time_sn')
-                timeData = [telemetryData.time_sn];
+        numVariables = length(selectedVariables);
+        for i = 1:numVariables
+            % Set the position of each axis
+            plotAxes = axes('Parent', axesPanel, 'Position', [0.1, 1 - i*0.9/numVariables, 0.8, 0.8/numVariables]);
+            selectedVariable = selectedVariables{i};
+            if isfield(telemetryData, selectedVariable)
+                plotData = [telemetryData.(selectedVariable)];
+                if isfield(telemetryData, 'time_sn')
+                    timeData = [telemetryData.time_sn];
 
-                if isempty(timeData) || isempty(plotData) || length(timeData) ~= length(plotData)
-                    disp('Invalid data: Time and data arrays are empty or lengths do not match.');
-                    return;
+                    if isempty(timeData) || isempty(plotData) || length(timeData) ~= length(plotData)
+                        disp('Invalid data: Time and data arrays are empty or lengths do not match.');
+                        return;
+                    end
+                    plot(plotAxes, timeData, plotData);
+                    xlabel(plotAxes, 'Time (s)');
+                    ylabel(plotAxes, selectedVariable);
+                    xlimRange = [min(timeData), max(timeData)];
+                    ylimRange = [min(plotData), max(plotData)];
+
+                    xlim(plotAxes, xlimRange);
+                    ylim(plotAxes, ylimRange);
+                else
+                    disp('Time data not found.');
                 end
-                plot(plotAxes, timeData, plotData);
+            elseif isfield(RESULTS, selectedVariable)
+                tsObj = RESULTS.(selectedVariable);
+                plot(plotAxes, tsObj.Time, tsObj.Data);
                 xlabel(plotAxes, 'Time (s)');
                 ylabel(plotAxes, selectedVariable);
-                xlimRange = [min(timeData), max(timeData)];
-                ylimRange = [min(plotData), max(plotData)];
-
-                xlim(plotAxes, xlimRange);
-                ylim(plotAxes, ylimRange);
+              
+                
             else
-                disp('Time data not found.');
+                disp(['Selected variable not found: ', selectedVariable]);
             end
-        elseif isfield(RESULTS, selectedVariable)
-            tsObj = RESULTS.(selectedVariable);
-            plot(plotAxes, tsObj.Time, tsObj.Data);
-            xlabel(plotAxes, 'Time (s)');
-            ylabel(plotAxes, selectedVariable);
-        else
-            disp(['Selected variable not found: ', selectedVariable]);
         end
     end
 end
