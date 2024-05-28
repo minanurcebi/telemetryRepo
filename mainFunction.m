@@ -16,4 +16,7 @@ function RESULTS = mainFunction()
     
     % Convert quaternions to Euler angles (yaw, pitch, roll)
     run('quaternions2euler.m')
+    
+    % Convert latitude, longitude, and altitude to NED coordinates
+    run('lla2nedCoords.m')
 end
