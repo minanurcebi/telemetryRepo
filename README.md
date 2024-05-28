@@ -47,3 +47,6 @@ Warnings and Errors
 
     If no file is selected or if time data is missing, error messages will be displayed.
     If the lengths of the time and data arrays do not match, an appropriate error message will inform you of the issue.
+
+
+**Important Warning: The csv2struct script located in the Scripts/ directory operates with a static file path and file name. Users must specify the file path and name of the CSV file they wish to use within the csv2struct.m script according to their working environment.**
