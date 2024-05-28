@@ -1,17 +1,17 @@
 function telemetriGUI
     % Main function for the MATLAB GUI
 
-    % Creating and positioning the GUI components
+    % Create and position the GUI components
     fig = uifigure('Name', 'Telemetry Data Analysis', 'Position', [100, 100, 800, 600]);
     fileButton = uibutton(fig, 'push', 'Text', 'Select File', 'Position', [20, 550, 100, 30], 'ButtonPushedFcn', @(src, event) fileButtonPushed());
     variableList = uilistbox(fig, 'Position', [20, 400, 200, 130], 'Multiselect', 'on');
     axesPanel = uipanel(fig, 'Position', [240, 20, 540, 560]);
     plotButton = uibutton(fig, 'push', 'Text', 'Plot Graph', 'Position', [130, 550, 100, 30], 'ButtonPushedFcn', @(src, event) plotButtonPushed());
 
-    % Storing the telemetry data globally
+    % Global variables to store telemetry data and results
     global telemetryData RESULTS;
 
-    % Function to be executed when a file is selected
+    % Function to be executed when the 'Select File' button is pressed
     function fileButtonPushed()
         [fileName, pathName] = uigetfile({'*.csv', 'CSV Files (*.csv)'}, 'Select Telemetry File');
         if fileName == 0
@@ -47,9 +47,10 @@ function telemetriGUI
     function updatePlots(selectedVariables)
         delete(findobj(axesPanel, 'type', 'axes'));
         numVariables = length(selectedVariables);
+        axesHeight = 0.8 / numVariables; % Height of each axis
         for i = 1:numVariables
             % Set the position of each axis
-            plotAxes = axes('Parent', axesPanel, 'Position', [0.1, 1 - i*0.9/numVariables, 0.8, 0.8/numVariables]);
+            plotAxes = axes('Parent', axesPanel, 'Position', [0.1, 1 - i*axesHeight - 0.1, 0.8, axesHeight - 0.05]);
             selectedVariable = selectedVariables{i};
             if isfield(telemetryData, selectedVariable)
                 plotData = [telemetryData.(selectedVariable)];
@@ -66,7 +67,7 @@ function telemetriGUI
                     ylabel(plotAxes, 'Data', 'Interpreter', 'none');
                     xlimRange = [min(timeData), max(timeData)];
                     ylimRange = [min(plotData), max(plotData)];
-
+                    
                     xlim(plotAxes, xlimRange);
                     ylim(plotAxes, ylimRange);
                 else
