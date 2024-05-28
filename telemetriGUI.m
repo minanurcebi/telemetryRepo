@@ -37,7 +37,7 @@ function telemetriGUI
         dataTable = readtable(filePath);
         disp('Data Table:');
         disp(dataTable);  % Display the structure and content of the table
-
+        
         data = table2struct(dataTable);
         disp('Data Struct:');
         disp(data);  % Display the converted structure
@@ -61,8 +61,9 @@ function telemetriGUI
                         return;
                     end
                     plot(plotAxes, timeData, plotData);
-                    xlabel(plotAxes, 'Time (s)');
-                    ylabel(plotAxes, selectedVariable);
+                    title(plotAxes, selectedVariable, 'Interpreter', 'none');  % Set the variable name as title
+                    xlabel(plotAxes, 'Time (s)', 'Interpreter', 'none');
+                    ylabel(plotAxes, 'Data', 'Interpreter', 'none');
                     xlimRange = [min(timeData), max(timeData)];
                     ylimRange = [min(plotData), max(plotData)];
 
@@ -74,10 +75,9 @@ function telemetriGUI
             elseif isfield(RESULTS, selectedVariable)
                 tsObj = RESULTS.(selectedVariable);
                 plot(plotAxes, tsObj.Time, tsObj.Data);
-                xlabel(plotAxes, 'Time (s)');
-                ylabel(plotAxes, selectedVariable);
-              
-                
+                title(plotAxes, selectedVariable, 'Interpreter', 'none');  % Set the variable name as title
+                xlabel(plotAxes, 'Time (s)', 'Interpreter', 'none');
+                ylabel(plotAxes, 'Data', 'Interpreter', 'none');
             else
                 disp(['Selected variable not found: ', selectedVariable]);
             end
