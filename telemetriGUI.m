@@ -1,7 +1,7 @@
 function telemetriGUI
     % Main function for the MATLAB GUI
 
-    % Create and position the GUI components
+    %% Create and position the GUI components
     fig = uifigure('Name', 'Telemetry Data Analysis', 'Position', [100, 100, 800, 600]);
     fileButton = uibutton(fig, 'push', 'Text', 'Select File', 'Position', [20, 550, 100, 30], 'ButtonPushedFcn', @(src, event) fileButtonPushed());
     variableList = uilistbox(fig, 'Position', [20, 400, 200, 130], 'Multiselect', 'on');
@@ -27,7 +27,7 @@ function telemetriGUI
         % Get the variable names from the telemetry data
         variableNames = fieldnames(telemetryData);
         disp(telemetryData);
-        % Run the mainFunction.m to calculate the desired results and retrieve them
+        % Execute the main function to calculate and retrieve the desired results
         RESULTS = mainFunction();  % Load the RESULTS structure
         % Get the field names from the RESULTS structure
         resultsFields = fieldnames(RESULTS);
@@ -63,14 +63,17 @@ function telemetriGUI
         panelHeight = axesPanel.Position(4);
         panelWidth = axesPanel.Position(3);
         % Define the margin size
-        margin = 60; % margin size
+        margin = 70; % margin size
         % Calculate the height and width of each axis
         axesHeight = (panelHeight - margin * (numVariables + 1)) / numVariables; % Height of each axis
-        axesWidth = panelWidth - 2.2 * margin; % Width of each axis
-        
+        axesWidth = panelWidth - 2 * margin; % Width of each axis
+        % Define the offset for shifting the plots to the right
+        xOffset = 30; % offset for shifting the plots to the right
+
+        % Loop through each selected variable
         for i = 1:numVariables
             % Set the position of each axis
-            plotAxes = axes('Parent', axesPanel, 'Position', [margin / panelWidth, 1 - (i * (axesHeight + margin) / panelHeight), axesWidth / panelWidth, axesHeight / panelHeight]);
+            plotAxes = axes('Parent', axesPanel, 'Position', [(margin + xOffset) / panelWidth, 1 - (i * (axesHeight + margin) / panelHeight), axesWidth / panelWidth, axesHeight / panelHeight]);
             selectedVariable = selectedVariables{i};
             if isfield(telemetryData, selectedVariable)
                 % Get the data for the selected variable
@@ -88,30 +91,25 @@ function telemetriGUI
                     plot(plotAxes, timeData, plotData);
                     grid(plotAxes, 'on'); % Add grid
                     % Set the title and axis labels
-                    title(plotAxes, selectedVariable, 'Interpreter', 'none');  % Set the variable name as title
-                    xlabel(plotAxes, 'Time (s)', 'Interpreter', 'none');
-                    ylabel(plotAxes, selectedVariable, 'Interpreter', 'none', 'FontSize', 10, 'FontWeight', 'bold'); % Set the font size and weight
+                    title(plotAxes, selectedVariable, 'Interpreter', 'none', 'FontSize', 12, 'FontName', 'Times New Roman');  % Set the variable name as title
+                    xlabel(plotAxes, 'Time (s)', 'Interpreter', 'none', 'FontSize', 12, 'FontName', 'Times New Roman');
+                    ylabel(plotAxes, 'Data', 'Interpreter', 'none', 'FontSize', 12, 'FontName', 'Times New Roman'); % Set the font size and weight
                     % Calculate and set the x-axis limits
                     xlimRange = [min(timeData), max(timeData)];
-                    % Calculate and set the y-axis limits
                     ylimRange = [min(plotData), max(plotData)];
-
-                    % Set the axis limits
+                    
                     xlim(plotAxes, xlimRange);
                     ylim(plotAxes, ylimRange);
                 else
                     disp('Time data not found.');
                 end
             elseif isfield(RESULTS, selectedVariable)
-                % Get the data from the RESULTS structure
                 tsObj = RESULTS.(selectedVariable);
-                % Plot the data
                 plot(plotAxes, tsObj.Time, tsObj.Data);
                 grid(plotAxes, 'on'); % Add grid
-                % Set the title and axis labels
-                title(plotAxes, selectedVariable, 'Interpreter', 'none');  % Set the variable name as title
-                xlabel(plotAxes, 'Time (s)', 'Interpreter', 'none');
-                ylabel(plotAxes, 'Data', 'Interpreter', 'none', 'FontSize', 10, 'FontWeight', 'bold'); % Set the font size and weight
+                title(plotAxes, selectedVariable, 'Interpreter', 'none', 'FontSize', 12, 'FontName', 'Times New Roman');  % Set the variable name as title
+                xlabel(plotAxes, 'Time (s)', 'Interpreter', 'none', 'FontSize', 12, 'FontName', 'Times New Roman');
+                ylabel(plotAxes, 'Data', 'Interpreter', 'none', 'FontSize', 12, 'FontName', 'Times New Roman'); % Set the font size and weight
             else
                 disp(['Selected variable not found: ', selectedVariable]);
             end
