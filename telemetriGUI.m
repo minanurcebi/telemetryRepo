@@ -35,7 +35,12 @@ function telemetriGUI
     % Function to process the selected telemetry file
     function data = processTelemetryFile(filePath)
         dataTable = readtable(filePath);
+        disp('Data Table:');
+        disp(dataTable);  % Display the structure and content of the table
+
         data = table2struct(dataTable);
+        disp('Data Struct:');
+        disp(data);  % Display the converted structure
     end
 
     % Function to update the plots with the selected variable
@@ -43,16 +48,22 @@ function telemetriGUI
         delete(findobj(axesPanel, 'type', 'axes'));
         plotAxes = axes(axesPanel);
         if isfield(telemetryData, selectedVariable)
-            plotData = telemetryData.(selectedVariable);
+            plotData = [telemetryData.(selectedVariable)];
             if isfield(telemetryData, 'time_sn')
-                timeData = telemetryData.time_sn;
+                timeData = [telemetryData.time_sn];
 
-                % Plot the data
+                if isempty(timeData) || isempty(plotData) || length(timeData) ~= length(plotData)
+                    disp('Invalid data: Time and data arrays are empty or lengths do not match.');
+                    return;
+                end
                 plot(plotAxes, timeData, plotData);
                 xlabel(plotAxes, 'Time (s)');
                 ylabel(plotAxes, selectedVariable);
-                xlim(plotAxes, [min(timeData) max(timeData)]);
-                ylim(plotAxes, [min(plotData) max(plotData)]);
+                xlimRange = [min(timeData), max(timeData)];
+                ylimRange = [min(plotData), max(plotData)];
+
+                xlim(plotAxes, xlimRange);
+                ylim(plotAxes, ylimRange);
             else
                 disp('Time data not found.');
             end
