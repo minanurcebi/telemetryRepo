@@ -10,5 +10,7 @@ function RESULTS = mainFunction()
 
     % Convert CSV data to a structured format with timeseries
     run('csv2struct.m')
-
+    
+    % Calculate aerodynamic coefficients (CL, CD, CM)
+    run('aerodynamicCoefficients.m')
 end
