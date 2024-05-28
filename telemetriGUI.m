@@ -9,7 +9,7 @@ function telemetriGUI
     plotButton = uibutton(fig, 'push', 'Text', 'Plot Graph', 'Position', [130, 550, 100, 30], 'ButtonPushedFcn', @(src, event) plotButtonPushed());
 
     % Storing the telemetry data globally
-    global telemetryData;
+    global telemetryData RESULTS;
 
     % Function to be executed when a file is selected
     function fileButtonPushed()
@@ -22,7 +22,9 @@ function telemetriGUI
         telemetryData = processTelemetryFile(filePath);
         variableNames = fieldnames(telemetryData);
         disp(telemetryData);
-        variableList.Items = variableNames;
+        RESULTS = mainFunction();  % This loads the RESULTS structure
+        resultsFields = fieldnames(RESULTS);
+        variableList.Items = [resultsFields; variableNames];
     end
 
     % Function to be executed when the 'Plot Graph' button is pressed
@@ -54,6 +56,11 @@ function telemetriGUI
             else
                 disp('Time data not found.');
             end
+        elseif isfield(RESULTS, selectedVariable)
+            tsObj = RESULTS.(selectedVariable);
+            plot(plotAxes, tsObj.Time, tsObj.Data);
+            xlabel(plotAxes, 'Time (s)');
+            ylabel(plotAxes, selectedVariable);
         else
             disp(['Selected variable not found: ', selectedVariable]);
         end
