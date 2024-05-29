@@ -30,8 +30,44 @@ function telemetriGUI
         telemetryData = processTelemetryFile(filePath);
         % Get the variable names from the telemetry data
         variableNames = fieldnames(telemetryData);
+        
+        fileName = strrep(fileName, '.csv', '');
+        addpath('Functions')
+        [dataset_struct] = csv2struct(fileName, pathName);
+        % Calculate aerodynamic coefficients (CL, CD, CM)
+        [CL, CD, CM] = aerodynamicCoefficients(dataset_struct);
+        % Convert quaternions to Euler angles (yaw, pitch, roll)
+        [YAW, PITCH, ROLL] = quaternions2euler(dataset_struct);
+        % Convert latitude, longitude, and altitude to NED coordinates
+        [LATITUDE, LONGITUDE, ALTITUDE] = lla2nedCoords(dataset_struct);
+        % Calculate airspeed components (u, v, w)
+        [u, v, w] = calculateAirSpeedComponents(dataset_struct);
+
+        % Store the results in the RESULTS structure
+        % Retrieve the time data from the dataset structure
+        Time = dataset_struct.time_sn.Data;
+
+        % Store aerodynamic coefficients in the RESULTS structure
+        RESULTS.CL = timeseries(CL, Time);
+        RESULTS.CD = timeseries(CD, Time);
+        RESULTS.CM = timeseries(CM, Time);
+
+        % Store Euler angles in the RESULTS structure
+        RESULTS.YAW = timeseries(YAW, Time);
+        RESULTS.PITCH = timeseries(PITCH, Time);
+        RESULTS.ROLL = timeseries(ROLL, Time);
+
+        % Store NED coordinates in the RESULTS structure
+        RESULTS.LATITUDE = timeseries(LATITUDE, Time);
+        RESULTS.LONGITUDE = timeseries(LONGITUDE, Time);
+        RESULTS.ALTITUDE = timeseries(ALTITUDE, Time);
+
+        % Store airspeed components in the RESULTS structure
+        RESULTS.u = timeseries(u, Time);
+        RESULTS.v = timeseries(v, Time);
+        RESULTS.w = timeseries(w, Time);
         % Runs the 'mainFunction.m' that calculates the desired results and retrieves them
-        RESULTS = mainFunction();  % Load the RESULTS structure
+%         RESULTS = mainFunction();  % Load the RESULTS structure
         % Get the field names from the RESULTS structure
         resultsFields = fieldnames(RESULTS);
         % Update the variable listbox with the variable names
