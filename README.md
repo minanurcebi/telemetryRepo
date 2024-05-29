@@ -49,4 +49,4 @@ Warnings and Errors
     If the lengths of the time and data arrays do not match, an appropriate error message will inform you of the issue.
 
 
-**Important Warning: The csv2struct script located in the Scripts/ directory operates with a static file path and file name. Users must specify the file path and name of the CSV file they wish to use within the csv2struct.m script according to their working environment.**
+*Note: The csv2struct script has been updated and is now a function. This function no longer operates with a static file path and file name. Instead, it dynamically retrieves the file path and name from the GUI. Users no longer need to manually specify the file path and name within the csv2struct.m script. This change enhances flexibility and makes the script more adaptable to different working environments.*
